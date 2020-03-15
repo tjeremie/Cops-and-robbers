@@ -69,7 +69,7 @@ selectUpperDegreeVertices[g_,deg_]:=Select[VertexList[g],VertexDegree[g,#]>deg&]
 cleanGraphList[list_,lower_,upper_]:=Sort[CanonicalGraph/@Select[list,Min[VertexDegree[#]]<=lower&&Max[VertexDegree[#]]<=upper&],Max[VertexDegree[#1]]>=Max[VertexDegree[#2]]&] (* Returns a cleaned version of list: sorts the graphs by decreasing maximum degree and only keeps graphs such that the maximum degree is at most upper and the minimum degree is at most lower. *)
 
 
-(* Main function *
+(* Main function
 
 	Parameters
 		nbTotalVertices: The total number of vertices in the graphs we will create.
@@ -77,7 +77,7 @@ cleanGraphList[list_,lower_,upper_]:=Sort[CanonicalGraph/@Select[list,Min[Vertex
 		g1MaximumDegree: The maximum degree of the graphs g1 we will choose.
 		maxDeg: The maximum degree of the graphs we will create.
 		testAll: If True, graphs will be created for each possible choice of v1 in g1, otherwise will be done for one choice of v1.
-		v2DegreeSmall: If True, will set the degree of v2 to be v1Degree+1. This mode will suppose that g-N[v1] has maximum degree 4. Only works on 18 vertices with maximum degree 5. Otherwise, v1 and v2 always will have the same degree, both in g1, g2 and in the resulting graphs.
+		v2DegreeGreater: If True, will set the degree of v2 to be v1Degree+1. This mode will suppose that g-N[v1] has maximum degree 4. Only works on 18 vertices with maximum degree 5. Otherwise, v1 and v2 always will have the same degree, both in g1, g2 and in the resulting graphs.
 
 
 	Output
@@ -93,14 +93,14 @@ cleanGraphList[list_,lower_,upper_]:=Sort[CanonicalGraph/@Select[list,Min[Vertex
 
 
 
-createGraphs[nbTotalVertices_,v1degree_,g1MaximumDegree_,maxDeg_,testAll_,v2DegreeSmaller_]:=
+createGraphs[nbTotalVertices_,v1degree_,g1MaximumDegree_,maxDeg_,testAll_,v2DegreeGreater_]:=
 Block[{graphList1,graphList2,start,end,g1,v1,lowerDegreeVerticesList,reducedVerticesToConsider,results,v2degree},
 	(* We load the proper list of graphs depending on the parameters. *)
 	graphList1=cleanGraphList[Import["https://www.jeremieturcotte.com/research/4copsdata/smallgraphs/results/3copwingraphs/n"<>ToString[nbTotalVertices-maxDeg-1]<>"d1D"<>ToString[If[maxDeg==4 && nbTotalVertices-maxDeg-1==12,5,maxDeg]]<>"_3cops.g6","graph6"],maxDeg-1,maxDeg];  (*The list of connected graphs on nbInteriorVertices vertices such that c(G)=3 with Delta\[LessEqual]maxDeg, we also remove regular graphs*)
 	
-	v2degree=v1degree+Boole[v2DegreeSmaller]; (* In general, v1 and v2 will both have same degree both in g1,g2 and in the resulting graphs. In the special mode, we choose v2 to have degree 1 more than v1. *)
+	v2degree=v1degree+Boole[v2DegreeGreater]; (* In general, v1 and v2 will both have same degree both in g1,g2 and in the resulting graphs. In the special mode, we choose v2 to have degree 1 more than v1. *)
 	
-	graphList2=If[v2DegreeSmaller,Import["https://www.jeremieturcotte.com/research/4copsdata/smallgraphs/results/3copwingraphs/n13d1D4_3cops.g6","graph6"],graphList1];
+	graphList2=If[v2DegreeGreater,Import["https://www.jeremieturcotte.com/research/4copsdata/smallgraphs/results/3copwingraphs/n13d1D4_3cops.g6","graph6"],graphList1];
 	
 	(* We select the start and the end indices of all graphs with maximum degree exactly g1MaximumDegree in graphList. *)
 	start=FirstPosition[graphList1,_?(Max[VertexDegree[#]]==g1MaximumDegree&)][[1]];
@@ -117,12 +117,12 @@ Block[{graphList1,graphList2,start,end,g1,v1,lowerDegreeVerticesList,reducedVert
 				v1=reducedVerticesToConsider[[j]];
 				
 				(* All vertices which either come before v1 in reducedVerticesToConsider or which have higher degree than v1 are considered to already having been considered. *)
-				lowerDegreeVerticesList=If[v2DegreeSmaller,Range[12],Union[Flatten[Table[automorphicEquivalentVertices[g1,reducedVerticesToConsider[[k]]],{k,1,j-1}]],selectUpperDegreeVertices[g1,v1degree]]];
+				lowerDegreeVerticesList=If[v2DegreeGreater,Range[12],Union[Flatten[Table[automorphicEquivalentVertices[g1,reducedVerticesToConsider[[k]]],{k,1,j-1}]],selectUpperDegreeVertices[g1,v1degree]]];
 				
 				(* For some choice of g2,v2, we compute the merged list. *)
 				mergeGraphs[g1,v1,g2,v2,lowerDegreeVerticesList,i,maxDeg,nbTotalVertices]
 	
-				,{j,1,If[testAll,Length[reducedVerticesToConsider],Boole[Length[reducedVerticesToConsider]>0]]},{g2,graphList2[[If[v2DegreeSmaller,1,i];;Length[graphList2]]]},{v2,reduceByAutomorphism[g2,selectDegreeVertices[g2,v2degree]]} (* We only need to consider the graphs g2 which come after g1 in the list, and we consider v2 of the same degree as v1, but here again we can reduced the cases by automorphisms. *)
+				,{j,1,If[testAll,Length[reducedVerticesToConsider],Boole[Length[reducedVerticesToConsider]>0]]},{g2,graphList2[[If[v2DegreeGreater,1,i];;Length[graphList2]]]},{v2,reduceByAutomorphism[g2,selectDegreeVertices[g2,v2degree]]} (* We only need to consider the graphs g2 which come after g1 in the list, and we consider v2 of the same degree as v1, but here again we can reduced the cases by automorphisms. *)
 			]	
 			,{i,start,end}
 		]
@@ -132,7 +132,7 @@ Block[{graphList1,graphList2,start,end,g1,v1,lowerDegreeVerticesList,reducedVert
 	Print["List length: "<>ToString[Length[results[[2]]]]];
 	Print["Computation time: "<>ToString[results[[1]]]];
 	
-	Export["/Users/jeremieturcotte/Desktop/"<>"basegraphs_"<>ToString[nbTotalVertices]<>"_"<>ToString[v1degree]<>"_"<>ToString[g1MaximumDegree]<>"_"<>ToString[maxDeg]<>"_"<>ToString[testAll]<>"_"<>ToString[v2DegreeSmaller]<>".mx",{graphList1,results[[2]]}]
+	Export["/Users/jeremieturcotte/Desktop/"<>"basegraphs_"<>ToString[nbTotalVertices]<>"_"<>ToString[v1degree]<>"_"<>ToString[g1MaximumDegree]<>"_"<>ToString[maxDeg]<>"_"<>ToString[testAll]<>"_"<>ToString[v2DegreeGreater]<>".mx",{graphList1,results[[2]]}]
 ]
 
 
