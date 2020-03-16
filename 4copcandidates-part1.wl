@@ -132,7 +132,7 @@ Block[{graphList1,graphList2,start,end,g1,v1,lowerDegreeVerticesList,reducedVert
 	Print["List length: "<>ToString[Length[results[[2]]]]];
 	Print["Computation time: "<>ToString[results[[1]]]];
 	
-	Export["/Users/jeremieturcotte/Desktop/"<>"basegraphs_"<>ToString[nbTotalVertices]<>"_"<>ToString[v1degree]<>"_"<>ToString[g1MaximumDegree]<>"_"<>ToString[maxDeg]<>"_"<>ToString[testAll]<>"_"<>ToString[v2DegreeGreater]<>".mx",{graphList1,results[[2]]}]
+	Export[NotebookDirectory[]<>"basegraphs_"<>ToString[nbTotalVertices]<>"_"<>ToString[v1degree]<>"_"<>ToString[g1MaximumDegree]<>"_"<>ToString[maxDeg]<>"_"<>ToString[testAll]<>"_"<>ToString[v2DegreeGreater]<>".mx",{graphList1,results[[2]]}]
 ]
 
 
@@ -187,6 +187,15 @@ createGraphs[18,1,4,5,True,False];
 (* Sample results
 	List length: 52
 	Computation time: 8.27666
+*)
+
+
+(* Choose g1 with maximum degree 3, v1 of degree 3 in g1 *)
+createGraphs[18,3,3,5,True,False];
+
+(* Sample results
+	List length: 7
+	Computation time: 0.312485
 *)
 
 
