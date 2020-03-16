@@ -158,12 +158,12 @@ Block[{graphList,baseGraphs,g,partition,lowerDegreeVerticesList,index,tempList,t
 			AppendTo[graphCounts,Length[tempList]];
 		
 			(* We export the results. *)
-			graphCounts>>>NotebookDirectory[]<>"part2results_"<>ToString[nbTotalVertices]<>"_"<>ToString[v1degree]<>"_"<>ToString[g1MaximumDegree]<>"_"<>ToString[maxDeg]<>"_"<>ToString[testAll]<>"_"<>ToString[v2DegreeGreater]<>".txt";
+			graphCounts>>>NotebookDirectory[]<>"part2results_"<>ToString[nbTotalVertices]<>"_"<>ToString[v1degree]<>"_"<>ToString[g1MaximumDegree]<>"_"<>ToString[maxDeg]<>"_"<>ToString[testAll]<>"_"<>ToString[v2DegreeGreater]<>"_mod"<>ToString[mod]<>".txt";
 			Export[NotebookDirectory[]<>"finalgraph_"<>ToString[nbTotalVertices]<>"_"<>ToString[v1degree]<>"_"<>ToString[g1MaximumDegree]<>"_"<>ToString[maxDeg]<>"_"<>ToString[testAll]<>"_"<>ToString[v2DegreeGreater]<>"_"<>ToString[i]<>".g6",tempList,"Graph6"];
 			
 			,{i,res,Length[baseGraphs],mod}
 		];
-	][[1]]>>>NotebookDirectory[]<>"part2results_"<>ToString[nbTotalVertices]<>"_"<>ToString[v1degree]<>"_"<>ToString[g1MaximumDegree]<>"_"<>ToString[maxDeg]<>"_"<>ToString[testAll]<>"_"<>ToString[v2DegreeGreater]<>"_mod"<>ToString[mod]<>".txt"; (* This exports the total computation time. *)
+	][[1]]>>>NotebookDirectory[]<>"part2results_"<>ToString[nbTotalVertices]<>"_"<>ToString[v1degree]<>"_"<>ToString[g1MaximumDegree]<>"_"<>ToString[maxDeg]<>"_"<>ToString[testAll]<>"_"<>ToString[v2DegreeGreater]<>"_mod"<>ToString[mod]<>".txt" (* This exports the total computation time. *)
 ]
 
 
