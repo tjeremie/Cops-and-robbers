@@ -79,7 +79,7 @@ Block[{graphList,baseGraphs,g,partition,lowerDegreeVerticesList,index,tempList,t
 	(* Even if graphs in graphList are already in canonical form (done in part 1), due to a bug we need to reapply the canonical labelling. *)
 	graphList=CanonicalGraph/@graphList;
 	
-	outputFile=StringJoin["part2results_",ToString[nbTotalVertices],"_",ToString[v1degree],"_",ToString[g1MaximumDegree],"_",ToString[maxDeg],"_",ToString[testAll],"_",ToString[v2DegreeGreater],"_mod",ToString[mod],".txt"];
+	outputFile=StringJoin["part2results_",ToString[nbTotalVertices],"_",ToString[v1degree],"_",ToString[g1MaximumDegree],"_",ToString[maxDeg],"_",ToString[testAll],"_",ToString[v2DegreeGreater],"_mod",ToString[res],".txt"];
 	
 	timing=AbsoluteTiming[
 		Do[
