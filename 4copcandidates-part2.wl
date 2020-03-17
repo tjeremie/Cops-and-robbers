@@ -10,8 +10,8 @@
 (* Usage
 	Go to end of file and choose which computation to run.
 	
-	Either execute in Mathematica or in terminal with "wolfram -script 4copcandidates-part2.wl".	
-
+	Either execute in Mathematica or in terminal with "wolfram -script 4copcandidates-part2.wl" or "wolframscript -script 4copcandidates-part2.wl".	
+	
 	Note : Computations are often long and some use a lot of memory.
 *)
 
@@ -67,19 +67,21 @@ strongIsomGraphs[g1_Graph,g2_Graph,list_List]:=AnyTrue[FindGraphIsomorphism[g1,g
 
 	Note
 		For simplicity of usage, this function requires internet access to fetch the results of the part 1 of the algorithm. One could also download the files and read them directly.
-		All files will be created in the same directory as the script.
+		All files will be created in the same directory as the script if called by terminal. If called in Mathematica, prepend NotebookDirectory[] to the paths.
 *)
 
 
 completeGraphs[nbTotalVertices_,v1degree_,g1MaximumDegree_,maxDeg_,testAll_,v2DegreeGreater_,res_,mod_]:=
-Block[{graphList,baseGraphs,g,partition,lowerDegreeVerticesList,index,tempList,tempList2,counter,iterationCount,graphCounts},
+Block[{graphList,baseGraphs,g,partition,lowerDegreeVerticesList,index,tempList,tempList2,counter,iterationCount,graphCounts,timing,outputFile},
 	(* We start by loading the results of the first part of the algorithm. *)
 	{graphList,baseGraphs}=Import["https://www.jeremieturcotte.com/research/4copsdata/remainingcases/graphs/part1/basegraphs_"<>ToString[nbTotalVertices]<>"_"<>ToString[v1degree]<>"_"<>ToString[g1MaximumDegree]<>"_"<>ToString[maxDeg]<>"_"<>ToString[testAll]<>"_"<>ToString[v2DegreeGreater]<>".mx"];
 	
 	(* Even if graphs in graphList are already in canonical form (done in part 1), due to a bug we need to reapply the canonical labelling. *)
 	graphList=CanonicalGraph/@graphList;
 	
-	AbsoluteTiming[
+	outputFile=StringJoin["part2results_",ToString[nbTotalVertices],"_",ToString[v1degree],"_",ToString[g1MaximumDegree],"_",ToString[maxDeg],"_",ToString[testAll],"_",ToString[v2DegreeGreater],"_mod",ToString[mod],".txt"];
+	
+	timing=AbsoluteTiming[
 		Do[
 			(* We load a specific base graph. *)
 			g=baseGraphs[[i,1]];
@@ -158,16 +160,18 @@ Block[{graphList,baseGraphs,g,partition,lowerDegreeVerticesList,index,tempList,t
 			AppendTo[graphCounts,Length[tempList]];
 		
 			(* We export the results. *)
-			graphCounts>>>NotebookDirectory[]<>"part2results_"<>ToString[nbTotalVertices]<>"_"<>ToString[v1degree]<>"_"<>ToString[g1MaximumDegree]<>"_"<>ToString[maxDeg]<>"_"<>ToString[testAll]<>"_"<>ToString[v2DegreeGreater]<>"_mod"<>ToString[mod]<>".txt";
-			Export[NotebookDirectory[]<>"finalgraph_"<>ToString[nbTotalVertices]<>"_"<>ToString[v1degree]<>"_"<>ToString[g1MaximumDegree]<>"_"<>ToString[maxDeg]<>"_"<>ToString[testAll]<>"_"<>ToString[v2DegreeGreater]<>"_"<>ToString[i]<>".g6",tempList,"Graph6"];
+			PutAppend[graphCounts,outputFile];
+			Export["finalgraph_"<>ToString[nbTotalVertices]<>"_"<>ToString[v1degree]<>"_"<>ToString[g1MaximumDegree]<>"_"<>ToString[maxDeg]<>"_"<>ToString[testAll]<>"_"<>ToString[v2DegreeGreater]<>"_"<>ToString[i]<>".g6",tempList,"Graph6"];
 			
 			,{i,res,Length[baseGraphs],mod}
 		];
-	][[1]]>>>NotebookDirectory[]<>"part2results_"<>ToString[nbTotalVertices]<>"_"<>ToString[v1degree]<>"_"<>ToString[g1MaximumDegree]<>"_"<>ToString[maxDeg]<>"_"<>ToString[testAll]<>"_"<>ToString[v2DegreeGreater]<>"_mod"<>ToString[mod]<>".txt" (* This exports the total computation time. *)
+	][[1]];
+	
+	PutAppend[timing,outputFile]; (* This exports the total computation time. *)
 ]
 
 
 (* COMPUTATION *)
 
 
-completeGraphs[18,3,3,5,True,True,1,1] (* example command *)
+completeGraphs[18,4,4,4,False,False,1,1] (* example command *)
