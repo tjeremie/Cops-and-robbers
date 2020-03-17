@@ -9,7 +9,8 @@
 
 
 (* Usage
-	Running this file takes a few hours but will generate all the results required for part 2 of the algorithm, for every case we need to prove the proposition.
+	Running this file in Mathematica takes a few hours but will generate all the results required for part 2 of the algorithm, for every case we need to prove the proposition.
+	It is also possible to run this file in terminal with "wolfram -script 4copcandidates-part1.wl" or "wolframscript -script 4copcandidates-part1.wl" but you must delete the NotebookDirectory[]<> in the function createGraphs.	
 *)
 
 
@@ -88,7 +89,7 @@ cleanGraphList[list_,lower_,upper_]:=Sort[CanonicalGraph/@Select[list,Min[Vertex
 			The fourth item is the position of g1 in the list of graphs that will be loaded, this will also be used to reduced the number of cases in part 2 of the algorithm.
 
 	Note
-		For simplicity of usage, this function requires internet access to fetch the required lists of 3-cop-win graphs. One could also download the files and read them directly.
+		For simplicity of usage, this function requires internet access to fetch the required lists of 3-cop-win graphs. One could also download the files and read them 
 *)
 
 
