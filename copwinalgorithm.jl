@@ -281,7 +281,11 @@ end
 
 # Example of function to load a file of graphs in the graph6 format
 function loadList(i,nbfiles,n)
-    return collect(values(loadgraphs(string("./n",n,"/graphs_",n,"_1_",n,"_",i,"_",nbfiles,".g6"), GraphIO.Graph6.Graph6Format())));
+    try
+        return collect(values(loadgraphs(string("./n",n,"/graphs_",n,"_1_",n,"_",i,"_",nbfiles,".g6"), GraphIO.Graph6.Graph6Format())));
+    catch BoundsError
+        return []
+    end
 end
 
 #=
