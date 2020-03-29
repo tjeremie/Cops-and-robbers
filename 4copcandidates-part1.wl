@@ -101,7 +101,7 @@ Block[{graphList1,graphList2,start,end,g1,v1,lowerDegreeVerticesList,reducedVert
 	
 	v2degree=v1degree+v2DegreeGreater; (* In general, v1 and v2 will both have same degree both in g1,g2 and in the resulting graphs. In the special mode, we choose v2 to have degree 1 more than v1. *)
 	
-	graphList2=If[v2DegreeGreater>0,Import["https://www.jeremieturcotte.com/research/4copsdata/smallgraphs/results/3copwingraphs/n13d1D4_3cops.g6","graph6"],graphList1];
+	graphList2=If[v2DegreeGreater>0,Import["https://www.jeremieturcotte.com/research/min4cops/data/smallgraphs/results/3copwingraphs/n13d1D4_3cops.g6","graph6"],graphList1];
 	
 	(* We select the start and the end indices of all graphs with maximum degree exactly g1MaximumDegree in graphList. *)
 	start=FirstPosition[graphList1,_?(Max[VertexDegree[#]]==g1MaximumDegree&)][[1]];
@@ -271,3 +271,6 @@ createGraphs[18,3,3,5,True,1];
 	List length: 153
 	Computation time: 44.7778
 *)
+
+
+
