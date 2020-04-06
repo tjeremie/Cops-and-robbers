@@ -92,7 +92,7 @@ Block[{graphList,baseGraphs,g,partition,lowerDegreeVerticesList,tempList,tempLis
 	parameterToFileName=ToString[nbTotalVertices]<>"_"<>ToString[v1degree]<>"_"<>ToString[g1MaximumDegree]<>"_"<>ToString[maxDeg]<>"_"<>ToString[testAll]<>"_"<>ToString[v2DegreeGreater];
 	
 	(* If it does not already exist, we create a directory in which we create the results files. *)
-	Quiet[CreateDirectory[parameterToFileName], CreateDirectory::filex];
+	Quiet[CreateDirectory["finalgraphs_"<>parameterToFileName], CreateDirectory::filex];
 	
 	(* We load the 3-cop-win graphs, same as in part 1 of the algorithm.*)
 	graphList=loadList[nbTotalVertices-maxDeg-1,maxDeg]; 
@@ -102,7 +102,7 @@ Block[{graphList,baseGraphs,g,partition,lowerDegreeVerticesList,tempList,tempLis
 	
 	totalGraphsGenerated=0; (* Will contain the total number of graphs which we have outputed to file. *)
 	
-	outputFile="./"<>parameterToFileName<>"/part2results_"<>parameterToFileName<>If[mod>1,"_part"<>ToString[res],""]<>".txt";
+	outputFile="./"<>parameterToFileName<>"/finalgraphs_"<>parameterToFileName<>If[mod>1,"_part"<>ToString[res],""]<>"_results.txt";
 	totalTime=AbsoluteTiming[	
 	Do[
 		timing=AbsoluteTiming[		
