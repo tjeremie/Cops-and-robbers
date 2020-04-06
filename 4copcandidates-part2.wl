@@ -199,10 +199,7 @@ Block[{graphList,baseGraphs,g,partition,lowerDegreeVerticesList,tempList,tempLis
 	
 	PutAppend[{Total,totalGraphsGenerated,totalTime},outputFile];
 ]
-fillGraphs[nbTotalVertices_,v1degree_,g1MaximumDegree_,maxDeg_,testAll_,v2DegreeGreater_,res_,mod_]:=fillGraphs[nbTotalVertices,v1degree,g1MaximumDegree,maxDeg,testAll,v2DegreeGreater,1,1] (* Version of the function with only one part. *)
+fillGraphs[nbTotalVertices_,v1degree_,g1MaximumDegree_,maxDeg_,testAll_,v2DegreeGreater_]:=fillGraphs[nbTotalVertices,v1degree,g1MaximumDegree,maxDeg,testAll,v2DegreeGreater,1,1] (* Version of the function with only one part. *)
 
 
 fillGraphs@@(ToExpression/@$ScriptCommandLine[[2;;]]) (* For calls from a shell. Otherwise, call fillGraphs with the desired parameters. *)
-
-
-fillGraphs[17,4,4,4,False,0,1,1]
