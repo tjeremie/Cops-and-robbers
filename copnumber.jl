@@ -280,12 +280,8 @@ function threeCopWin(g)
 end
 
 # Example of function to load a file of graphs in the graph6 format
-function loadList(i,nbfiles,n)
-    try
-        return collect(values(loadgraphs(string("./n",n,"/graphs_",n,"_1_",n,"_",i,"_",nbfiles,".g6"), GraphIO.Graph6.Graph6Format())));
-    catch BoundsError
-        return []
-    end
+function loadList(i)
+    return collect(values(loadgraphs(string("/n20d2D3/graphs_20_2_3_",i,"_20000.g6"), GraphIO.Graph6.Graph6Format())));
 end
 
 #=
@@ -297,7 +293,7 @@ end
     Experimentally, speedup of almost factor 2 between 1 and 2 threads but does not improve much after 4 threads.
 =#
 
-function fctThreaded(nbfiles,n)
+function fctThreaded(part)
     totalonecopcount=0
     totaltwocopcount=0
     totalthreecopcount=0
@@ -306,14 +302,17 @@ function fctThreaded(nbfiles,n)
     d3=Dict{AbstractString,AbstractGraph}()
     d4=Dict{AbstractString,AbstractGraph}()
 
-    for i in 0:(nbfiles-1)
+    start=(part-1)*400
+    stop=part*400-1
+
+    for i in start:stop
 
         localonecopcount=Threads.Atomic{Int}(0)
         localtwocopcount=Threads.Atomic{Int}(0)
         localthreecopcount=Threads.Atomic{Int}(0)
         localfourcopcount=Threads.Atomic{Int}(0)
 
-        liste=loadList(i,nbfiles,n)
+        liste=loadList(i)
 
         Threads.@threads for g in liste
             if oneCopWin(g)
@@ -322,10 +321,10 @@ function fctThreaded(nbfiles,n)
                 Threads.atomic_add!(localtwocopcount,1)
             elseif threeCopWin(g)
                 Threads.atomic_add!(localthreecopcount,1)
-                d3[string(i,"--",Threads.threadid(),"--",localthreecopcount[])]=g
+                d3[string(i,"--",part,"--",Threads.threadid(),"--",localthreecopcount[])]=g
             else
                 Threads.atomic_add!(localfourcopcount,1)
-                d4[string(i,"--",Threads.threadid(),"--",localfourcopcount[])]=g
+                d4[string(i,"--",part,"--",Threads.threadid(),"--",localfourcopcount[])]=g
             end
         end
 
@@ -338,12 +337,12 @@ function fctThreaded(nbfiles,n)
         println(string(i," ",localonecopcount[]," ",localtwocopcount[]," ",localthreecopcount[]," ",localfourcopcount[]," "))
         flush(stdout)
     end
-
-        savegraph(string("./",n,"_3cops.g6"), d3, GraphIO.Graph6.Graph6Format())
-        savegraph(string("./",n,"_4cops.g6"), d4, GraphIO.Graph6.Graph6Format())
+    
+    savegraph(string("./n14d1D4_3cops_part",part,".g6"), d3, GraphIO.Graph6.Graph6Format())
+    savegraph(string("./n14d1D4_4cops_part",part,".g6"), d4, GraphIO.Graph6.Graph6Format())
 
     println(string("Total : ", totalonecopcount," ",totaltwocopcount," ",totalthreecopcount," ",totalfourcopcount," "))
 end
 
 # To start the program from the command line
-fctThreaded(parse(Int64, ARGS[1]),parse(Int64, ARGS[2]))
+@time fctThreaded(parse(Int64, ARGS[1]))
