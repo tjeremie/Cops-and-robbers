@@ -102,7 +102,7 @@ Block[{graphList,baseGraphs,g,partition,lowerDegreeVerticesList,tempList,tempLis
 	
 	totalGraphsGenerated=0; (* Will contain the total number of graphs which we have outputed to file. *)
 	
-	outputFile="./"<>parameterToFileName<>"/finalgraphs_"<>parameterToFileName<>If[mod>1,"_part"<>ToString[res],""]<>"_results.txt";
+	outputFile="./"<>"finalgraphs_"<>parameterToFileName<>"/finalgraphs_"<>parameterToFileName<>If[mod>1,"_part"<>ToString[res],""]<>"_results.txt";
 	totalTime=AbsoluteTiming[	
 	Do[
 		timing=AbsoluteTiming[		
@@ -191,7 +191,7 @@ Block[{graphList,baseGraphs,g,partition,lowerDegreeVerticesList,tempList,tempLis
 			
 			(* We export the results. *)
 			PutAppend[graphCounts,outputFile];
-			Export["./"<>parameterToFileName<>"/finalgraphs_"<>parameterToFileName<>"_"<>ToString[i]<>".g6",outputGraphs,"Graph6"];
+			Export["./"<>"finalgraphs_"<>parameterToFileName<>"/finalgraphs_"<>parameterToFileName<>"_"<>ToString[i]<>".g6",outputGraphs,"Graph6"];
 			
 		, {i,res,Length[baseGraphs],mod} (* We do the computation for each choice of graph (in the proper modulo class) from part 1 of the algorithm. *)
 	];
