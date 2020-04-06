@@ -1,20 +1,21 @@
 (* ::Package:: *)
 
 (* 
-	Generating small 4-cop-win candidate graphs - Part 2
+	Generating small 4-cop-win candidate graphs - Part 2 - Filling in the graphs with possible edges
 	For Finding the minimum order of 4-cop-win graphs
 	By J\[EAcute]r\[EAcute]mie Turcotte and Samuel Yvon
 *)
 
 
 (* Usage
-	Option 1 : Go to end of file and choose which computation to run.
-	Option 2 : Run in a shell with wolframscript. The parameters are the list parameters of ommand "wolframscript -script 4copcandidates-part2.wl".	
+	Option 1 : Run in Mathematica by going to end of file and choosing which computation to run.
+	Option 2 : Run in a shell with wolframscript : "wolframscript -script 4copcandidates-part1.wl x x x x x x x x", where x are the desired parameters of fillGraphs.
 *)
 
 
-(* Specify here the path to get the results from part 1 of the algorithm, by default fetches the results online *)
-part1FilesPath="https://www.jeremieturcotte.com/research/min4cops/data/remainingcases/basegraphs/";
+(* Specify here the path to get the required files for the computation, by default fetches the results online *)
+importPathSmallGraphs="https://www.jeremieturcotte.com/research/min4cops/data/smallgraphs/results/3copwingraphs/"; (* The path to the 3-cop-win graphs on fewer vertices, same as in the part 1 of the algorithm. . *)
+importPathPart1Results="https://www.jeremieturcotte.com/research/min4cops/data/remainingcases/part1results/graphs/"; (* The path to the results of part 1 of the algorithm. *)
 
 
 (* CODE *)
@@ -40,14 +41,19 @@ realDegreeBound[v_,lowerDegreeVerticesList_,maxDeg_]:=maxDeg-Boole[MemberQ[lower
 viableVertices[g_,v_,lowerDegreeVerticesList_,maxDeg_]:=VertexDegree[g,v]<realDegreeBound[v,lowerDegreeVerticesList,maxDeg] (* Given a graph g and the maximum authorized degree information, returns true if v still has capacity for new neighbour(s).*)
 
 
+(* Functions to prune out graphs that do not have the properties  *)
+specialCleanup[list_,v2DegreeGreater_]:=If[v2DegreeGreater>0,Select[list,graphHubIsClique],list]
+graphHubIsClique[g_]:=CompleteGraphQ[Subgraph[g,GraphHub[g]]]
+
+
 (* Functions to add possible missing edges *)
 newEdgePossibilities[g_,v_,possibleEndVertices_,lowerDegreeVerticesList_,maxDeg_]:=Subsets[Select[possibleEndVertices,viableVertices[g,#,lowerDegreeVerticesList,maxDeg]&],realDegreeBound[v,lowerDegreeVerticesList,maxDeg]-VertexDegree[g,v]](* Given a graph g and a start vertex v, returns the list of possible sets of edges between v and the vertices of possibleEndVertices that can be added while respecting the degree conditions. *)
-newGraphPossibilities[g_Graph,v_,possibleEndVertices_,lowerDegreeVerticesList_,maxDeg_]:=edgeadd[g,convertToEdge[v,#]]&/@newEdgePossibilities[g,v,possibleEndVertices,lowerDegreeVerticesList,maxDeg] (* Given a graph g and a start vertex v, generates the graphs for each possible sets of edges to add. *)
-newGraphPossibilities[list_List,v_,possibleEndVertices_,lowerDegreeVerticesList_,maxDeg_]:=Flatten[newGraphPossibilities[#,v,possibleEndVertices,lowerDegreeVerticesList,maxDeg]&/@list] (* Applies the previous function to each graph in list, and brings the resulting list down to one level. *)
-iteration[j_,tempList_,lowerDegreeVerticesList_,partition_,maxDeg_]:=
+newGraphPossibilities[g_Graph,v_,possibleEndVertices_,lowerDegreeVerticesList_,maxDeg_,v2DegreeGreater_]:=specialCleanup[edgeadd[g,convertToEdge[v,#]]&/@newEdgePossibilities[g,v,possibleEndVertices,lowerDegreeVerticesList,maxDeg],v2DegreeGreater] (* Given a graph g and a start vertex v, generates the graphs for each possible sets of edges to add. *)
+newGraphPossibilities[list_List,v_,possibleEndVertices_,lowerDegreeVerticesList_,maxDeg_,v2DegreeGreater_]:=Flatten[newGraphPossibilities[#,v,possibleEndVertices,lowerDegreeVerticesList,maxDeg,v2DegreeGreater]&/@list] (* Applies the previous function to each graph in list, and brings the resulting list down to one level. *)
+iteration[j_,tempList_,lowerDegreeVerticesList_,partition_,maxDeg_,v2DegreeGreater_]:=
 	If[j<=Length[partition[[4]]],
-		Flatten[newGraphPossibilities[#,partition[[4,j]],Join[partition[[2]],partition[[3]],partition[[4,j+1;;]],partition[[5]]],lowerDegreeVerticesList,maxDeg]&/@tempList],
-		Flatten[newGraphPossibilities[#,partition[[5,j-Length[partition[[4]]]]],partition[[2]],lowerDegreeVerticesList,maxDeg]&/@tempList]
+		Flatten[newGraphPossibilities[#,partition[[4,j]],Join[partition[[2]],partition[[3]],partition[[4,j+1;;]],partition[[5]]],lowerDegreeVerticesList,maxDeg,v2DegreeGreater]&/@tempList],
+		Flatten[newGraphPossibilities[#,partition[[5,j-Length[partition[[4]]]]],partition[[2]],lowerDegreeVerticesList,maxDeg,v2DegreeGreater]&/@tempList]
 	]; (* Applies the j-th iteration of the edge-adding procedure : adds edges incident to the j-th neighbour of v2. The possible neighbours change depending on if it is a common neighbour of v1 and v2 or not.  *)
 
 
@@ -61,40 +67,47 @@ fixedPointsIsomorphism[iso_Association,list_List]:=AllTrue[list,Sort[#/.iso]==So
 strongIsomGraphs[g1_Graph,g2_Graph,list_List]:=AnyTrue[FindGraphIsomorphism[g1,g2,All],fixedPointsIsomorphism[#,list]&] (* Given two graphs and a list of sets of vertices, returns true if there exists an isomorphism between g1 and g2 such that the image of every set of vertices is itself (which is what we call a "strong isomorphism"). *)
 
 
+(* Function to clean and load the list of graphs we are going to merge *)
+cleanGraphList[list_]:=Sort[CanonicalGraph/@list,Max[VertexDegree[#1]]>=Max[VertexDegree[#2]]&] (* Returns a cleaned version of list: sorts the graphs by decreasing maximum degree and all graphs in canonical form. *)
+loadList[nbVertices_,maxDeg_]:=cleanGraphList[Import[importPathSmallGraphs<>"n"<>ToString[nbVertices]<>"d1D"<>ToString[maxDeg]<>"_3cops.g6","graph6"]] (* Loads the list of 3-cop-win connected graphs on nbVertices vertices such that c(G)=3 with Delta\[LessEqual]maxDeg. *)
+
+
 (* Main function
 
-	Parameters (The first 6 parameters are the same as in part 1 of the algorithm, will be used to load the appropriate list.)
-		First 6 parameters : The same as in part 1 of the algorithm, will be used to load the appropriate list.
-		start: Where to start the computation.
-		end: Where to end the computation.
-		res: The residue class to compute (between 1 and mod) (assumed to be compatible with res).
+	Parameters
+		First 6 parameters : The same as in the first 6 parameters of part 1 of the algorithm, will be used to load the appropriate list.
+	Optional parameters (otherwise res,mod=1)	
+		res: The residue class to compute, between 1 and mod.
 		mod: The number of classes in which we split the computation.
 		
 	Output
-		Exports to file a list of candidate 4-cop-win graphs. One file will be generated for each base graph used.
-		Also creates a file which lists the number of graphs in each step of the algorithm.
-
-	Note
-		If called in terminal: Paths are relative. All files will be created in the same directory as the script (paths are relative).
-		If called in Mathematica: Paths are absolute. Prepend NotebookDirectory[] to the paths to output in the same directory as the script.
+		Exports to file a list of candidate 4-cop-win graphs. One file will be generated for each graph produced in part 1 of the algorithm, the graphs are in g6 format.
+		Also generates a file which summarizes the computation. On each line there is a list with a variable number of elements: the first element is the index of the base graph, followed by the number of graphs in each part of the algorithm, the last element is the time required for this computation.
 *)
 
 
-completeGraphs[nbTotalVertices_,v1degree_,g1MaximumDegree_,maxDeg_,testAll_,v2DegreeGreater_,start_,end_,res_,mod_]:=
-Block[{graphList,baseGraphs,g,partition,lowerDegreeVerticesList,index,tempList,tempList2,tempList3,outputGraphs,iterationCount,graphCounts,timing,outputFile,counterList},
+fillGraphs[nbTotalVertices_,v1degree_,g1MaximumDegree_,maxDeg_,testAll_,v2DegreeGreater_,res_,mod_]:=
+Block[{graphList,baseGraphs,g,partition,lowerDegreeVerticesList,tempList,tempList2,tempList3,outputGraphs,iterationCount,graphCounts,timing,outputFile,counterList,totalTime,totalGraphsGenerated,parameterToFileName},
+	(* To convert parameters to string format. *)
+	parameterToFileName=ToString[nbTotalVertices]<>"_"<>ToString[v1degree]<>"_"<>ToString[g1MaximumDegree]<>"_"<>ToString[maxDeg]<>"_"<>ToString[testAll]<>"_"<>ToString[v2DegreeGreater];
+	
+	(* If it does not already exist, we create a directory in which we create the results files. *)
+	Quiet[CreateDirectory[parameterToFileName], CreateDirectory::filex];
+	
+	(* We load the 3-cop-win graphs, same as in part 1 of the algorithm.*)
+	graphList=loadList[nbTotalVertices-maxDeg-1,maxDeg]; 
 	
 	(* We start by loading the results of the first part of the algorithm. *)
-	{graphList,baseGraphs}=Import[part1FilesPath<>"basegraphs_"<>ToString[nbTotalVertices]<>"_"<>ToString[v1degree]<>"_"<>ToString[g1MaximumDegree]<>"_"<>ToString[maxDeg]<>"_"<>ToString[testAll]<>"_"<>ToString[v2DegreeGreater]<>".mx"];
+	baseGraphs=Import[importPathPart1Results<>"basegraphs_"<>parameterToFileName<>".mx"];
 	
-	(* Even if graphs in graphList are already in canonical form (done in part 1), due to a bug we need to reapply the canonical labelling. *)
-	graphList=CanonicalGraph/@graphList;
+	totalGraphsGenerated=0; (* Will contain the total number of graphs which we have outputed to file. *)
 	
-	outputFile=StringJoin["part2results_",ToString[nbTotalVertices],"_",ToString[v1degree],"_",ToString[g1MaximumDegree],"_",ToString[maxDeg],"_",ToString[testAll],"_",ToString[v2DegreeGreater],"_part",ToString[res],".txt"];
-		
+	outputFile="./"<>parameterToFileName<>"/part2results_"<>parameterToFileName<>If[mod>1,"_part"<>ToString[res],""]<>".txt";
+	totalTime=AbsoluteTiming[	
 	Do[
 		timing=AbsoluteTiming[		
 			(* We load a specific base graph. *)
-			{g,partition,lowerDegreeVerticesList,index}=baseGraphs[[i]];
+			{g,partition,lowerDegreeVerticesList}=baseGraphs[[i]];
 			
 			(* Will collect the number of graphs after each step in the algorithm, for debugging and verification purposes. *)
 			graphCounts={i};
@@ -106,7 +119,7 @@ Block[{graphList,baseGraphs,g,partition,lowerDegreeVerticesList,index,tempList,t
 			iterationCount=0;
 			
 			Do[
-				tempList=iteration[j,tempList,lowerDegreeVerticesList,partition,maxDeg]; (* Look at possible edges to add to the j-th neighbour of v2. *)
+				tempList=iteration[j,tempList,lowerDegreeVerticesList,partition,maxDeg,v2DegreeGreater]; (* Look at possible edges to add to the j-th neighbour of v2. *)
 				
 				AppendTo[graphCounts,Length[tempList]];
 				
@@ -140,7 +153,7 @@ Block[{graphList,baseGraphs,g,partition,lowerDegreeVerticesList,index,tempList,t
 					tempList2={g2};
 					
 					Do[
-						tempList2=iteration[j,tempList2,lowerDegreeVerticesList,partition,maxDeg];
+						tempList2=iteration[j,tempList2,lowerDegreeVerticesList,partition,maxDeg,v2DegreeGreater];
 						counterList[[j-2]]+=Length[tempList2];
 						
 						,{j,3,maxDeg-1}
@@ -148,7 +161,7 @@ Block[{graphList,baseGraphs,g,partition,lowerDegreeVerticesList,index,tempList,t
 					
 					(* For the last iteration, to save memory, we do not need to save the graphs for later iterations. We only save the graphs which we consider possible candidate 4-cop-win graphs. *)
 					Do[
-						tempList3=newGraphPossibilities[g3,partition[[5,-1]],partition[[2]],lowerDegreeVerticesList,maxDeg];
+						tempList3=newGraphPossibilities[g3,partition[[5,-1]],partition[[2]],lowerDegreeVerticesList,maxDeg,v2DegreeGreater];
 						counterList[[-1]]+=Length[tempList3];
 						
 						(* The viable candidate graphs are those such that for each vertex u of maximum degree, g-N[u] is in graphList (and further down in the list without loss of generality). *)
@@ -160,8 +173,6 @@ Block[{graphList,baseGraphs,g,partition,lowerDegreeVerticesList,index,tempList,t
 					];
 					
 					tempList2={};
-					
-					
 					,{g2,tempList}
 				]
 			][[2]]];
@@ -171,24 +182,27 @@ Block[{graphList,baseGraphs,g,partition,lowerDegreeVerticesList,index,tempList,t
 		
 			(* We now remove all isomorphic graphs. *)
 			outputGraphs=DeleteDuplicates[outputGraphs];
-			
 			AppendTo[graphCounts,Length[outputGraphs]];
+			
+			totalGraphsGenerated+=Length[outputGraphs];
 			][[1]];
 			
 			AppendTo[graphCounts,timing];
 			
 			(* We export the results. *)
 			PutAppend[graphCounts,outputFile];
-			Export["finalgraph_"<>ToString[nbTotalVertices]<>"_"<>ToString[v1degree]<>"_"<>ToString[g1MaximumDegree]<>"_"<>ToString[maxDeg]<>"_"<>ToString[testAll]<>"_"<>ToString[v2DegreeGreater]<>"_"<>ToString[i]<>".g6",outputGraphs,"Graph6"];
+			Export["./"<>parameterToFileName<>"/finalgraphs_"<>parameterToFileName<>"_"<>ToString[i]<>".g6",outputGraphs,"Graph6"];
+			
+		, {i,res,Length[baseGraphs],mod} (* We do the computation for each choice of graph (in the proper modulo class) from part 1 of the algorithm. *)
+	];
+	][[1]];
 	
-		, {i,start,Min[end,Length[baseGraphs]],mod}
-		];
-	
+	PutAppend[{Total,totalGraphsGenerated,totalTime},outputFile];
 ]
+fillGraphs[nbTotalVertices_,v1degree_,g1MaximumDegree_,maxDeg_,testAll_,v2DegreeGreater_,res_,mod_]:=fillGraphs[nbTotalVertices,v1degree,g1MaximumDegree,maxDeg,testAll,v2DegreeGreater,1,1] (* Version of the function with only one part. *)
 
 
-(* COMPUTATION *)
+fillGraphs@@(ToExpression/@$ScriptCommandLine[[2;;]]) (* For calls from a shell. Otherwise, call fillGraphs with the desired parameters. *)
 
 
-(* Used to run the computation from the command line *)
-completeGraphs@@(ToExpression/@$ScriptCommandLine[[2;;]])
+fillGraphs[17,4,4,4,False,0,1,1]
