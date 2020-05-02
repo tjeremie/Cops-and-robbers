@@ -2,7 +2,7 @@
     Algorithm for testing cop numbers 1,2,3
     By Jérémie Turcotte
 
-    Algorithm inspired by those suggested, for example, in https://math.ryerson.ca/~abonato/papers/distcops_bcp030109.pdf and https://www.sciencedirect.com/science/article/pii/S0012365X12000064.
+    Algorithm inspired by those suggested, for example, in https://math.ryerson.ca/~abonato/papers/distcops_bcp030109.pdf, https://www.sciencedirect.com/science/article/pii/S0012365X12000064 and https://pub.tik.ee.ethz.ch/students/2016-HS/BA-2016-20.pdf.
 
     Also includes an example of how to scan various files of graphs, in the g6 format, for which to breakdown the number of graphs of each cop number.
 
