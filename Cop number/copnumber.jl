@@ -13,6 +13,7 @@
 using LightGraphs, GraphIO, Base
 
 # Returns true if the line i in mat (of size n^2) is all true
+function convertToBool1(mat,i)
     return !(false in mat[i,:])
 end
 
