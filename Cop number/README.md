@@ -10,4 +10,4 @@ copnumber.jl : Can calculate whether a graph has cop number 1, 2, 3 or greater t
 
 ## Citation
 
-If this is useful to you, please cite one of more of the articles referenced in the header of the scripts, the algorithms implemented are, except for some fine tuning, not original ideas.
+If this is useful to you, please cite one or more of the articles referenced in the header of the scripts, the algorithms implemented are, except for some fine tuning, not original ideas.
