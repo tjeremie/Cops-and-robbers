@@ -7,8 +7,9 @@ More details, including a link to the article and all the generated data, are av
 ## Citation
 
 If this is useful to you, please consider citing:
-@article{min4cops,
-    title={4-cop-win graphs have at least 19 vertices},
-    author={Turcotte, Jérémie and Yvon, Samuel},
-    year={2020}
-}
+
+    @article{min4cops,
+        title={4-cop-win graphs have at least 19 vertices},
+        author={Turcotte, Jérémie and Yvon, Samuel},
+        year={2020}
+    }
