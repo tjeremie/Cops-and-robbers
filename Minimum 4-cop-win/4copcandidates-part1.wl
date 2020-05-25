@@ -135,7 +135,7 @@ Block[{graphList1,graphList2,start,end,g1,v1,lowerDegreeVerticesList,reducedVert
 							(* For some choice of g2,v2, we compute the merged list. *)
 							mergeGraphs[g1,v1,g2,v2,lowerDegreeVerticesList,maxDeg,nbTotalVertices]
 	
-						,{j,1,If[testAll,Length[reducedVerticesToConsider],Boole[Length[reducedVerticesToConsider]>0]]},{g2,graphList2[[If[v2DegreeGreater>0,1,i];;Length[graphList2]]]},{v2,reducedVertexChoices[g2,v2degree]} (* In the case where v1 and v2 have the same degree, w only need to consider the graphs g2 which come after g1 in the list. We choose v2 up to automorphism. *)
+						,{j,1,If[testAll,Length[reducedVerticesToConsider],Boole[Length[reducedVerticesToConsider]>0]]},{g2,graphList2},{v2,reducedVertexChoices[g2,v2degree]} (* In the case where v1 and v2 have the same degree, w only need to consider the graphs g2 which come after g1 in the list. We choose v2 up to automorphism. *)
 					],3]];
 					
 					PutAppend[{i,Length[temp[[2]]],temp[[1]]},outputFile];
