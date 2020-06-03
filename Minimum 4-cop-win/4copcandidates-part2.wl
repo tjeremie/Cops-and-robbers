@@ -41,9 +41,9 @@ realDegreeBound[v_,lowerDegreeVerticesList_,maxDeg_]:=maxDeg-Boole[MemberQ[lower
 viableVertices[g_,v_,lowerDegreeVerticesList_,maxDeg_]:=VertexDegree[g,v]<realDegreeBound[v,lowerDegreeVerticesList,maxDeg] (* Given a graph g and the maximum authorized degree information, returns true if v still has capacity for new neighbour(s).*)
 
 
-(* Functions to prune out graphs that do not have the properties  *)
-specialCleanup[list_,v2DegreeGreater_]:=If[v2DegreeGreater>0,Select[list,graphHubIsClique],list]
-graphHubIsClique[g_]:=CompleteGraphQ[Subgraph[g,GraphHub[g]]]
+(* Functions to prune out graphs for which the vertices of degree maxDeg do not form a clique (only applied for graphs with v2DegreeGreater>0 *)
+specialCleanup[list_,v2DegreeGreater_]:=If[v2DegreeGreater>0,Select[list,graphHubIsClique],list] (* Selects the valid graphs in list. *)
+graphHubIsClique[g_]:=CompleteGraphQ[Subgraph[g,GraphHub[g]]] (* Returns True if the vertices of maximum degree of g forms a clique. *)
 
 
 (* Functions to add possible missing edges *)
