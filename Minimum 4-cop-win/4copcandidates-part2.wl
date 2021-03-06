@@ -214,7 +214,7 @@ Block[{graphList,baseGraphs,g,partition,lowerDegreeVerticesList,tempList,tempLis
 						tempList3=newGraphPossibilities[g3,partition[[5,-1]],partition[[2]],lowerDegreeVerticesList,maxDeg,v2DegreeGreater];
 						counterList[[-1]]+=Length[tempList3];
 						
-						(* The viable candidate graphs are those such that for each vertex u of maximum degree, g-N[u] is in graphList (and further down in the list without loss of generality). *)
+						(* The viable candidate graphs are those such that for each vertex u of maximum degree, g-N[u] is in graphList. *)
 						Sow[CanonicalGraph/@Select[tempList3,validGraph[#,graphList,{partition[[1,1]],partition[[6,1]]}]&]];
 						
 						tempList3={};
